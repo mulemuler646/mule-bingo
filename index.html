@@ -716,6 +716,86 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
   font-size: 11px !important;
 }
 
+
+/* MULE BINGO COMPACT SIZE UPDATE */
+
+/* Smaller top logo and heading */
+header .logo {
+  font-size: 22px !important;
+}
+
+header h1,
+header .title,
+header .brand-name {
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+/* Smaller Last Called ball */
+#gamePage .last-number-box #lastCalled .bingo-ball {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  flex: 0 0 64px !important;
+  font-size: 28px !important;
+}
+
+/* Less vertical space around Last Called */
+#gamePage .last-number-box {
+  margin: 4px auto !important;
+  padding: 5px !important;
+}
+
+/* Shorter panels, wider Cartela */
+#gamePage #gameArea .game-layout {
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr) !important;
+  gap: 5px !important;
+  align-items: start !important;
+  margin-top: 4px !important;
+}
+
+#gamePage #gameArea .numbers-panel,
+#gamePage #gameArea .player-card-panel {
+  align-self: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 4px !important;
+}
+
+#gamePage #gameArea .numbers-panel h3,
+#gamePage #gameArea .player-card-panel h3 {
+  margin: 3px 0 !important;
+  font-size: 12px !important;
+}
+
+/* Compact number board */
+#gamePage #gameArea .numbers-panel .called-board {
+  gap: 2px !important;
+}
+
+#gamePage #gameArea .numbers-panel .called-cell {
+  padding: 4px 0 !important;
+  font-size: 10px !important;
+}
+
+/* Cartela wider with shorter cells */
+#gamePage #gameArea .player-card-panel .bingo-grid {
+  gap: 2px !important;
+  margin-top: 4px !important;
+}
+
+#gamePage #gameArea .player-card-panel .bingo-cell {
+  min-height: 25px !important;
+  height: auto !important;
+  padding: 1px 0 !important;
+  font-size: 11px !important;
+}
+
+#gamePage #gameArea .player-card-panel .game-card {
+  margin: 4px 0 !important;
+  padding: 4px !important;
+}
+
 </style>
 </head>
 <body>
