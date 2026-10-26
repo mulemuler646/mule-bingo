@@ -8,6 +8,9 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
 const selectedBingoCards = new Set();
+let selectionOpen = false, secondsLeft = 30;
+let selectionTimer = null, gameTimer = null;
+let calledNumbers = [], gameCards = [], gameRunning = false;
 
 function renderBingoCards() {
   const grid = document.getElementById('cardGrid');
@@ -21,8 +24,10 @@ function renderBingoCards() {
     b.className = 'card-pick' + (selectedBingoCards.has(n) ? ' selected' : '');
     b.textContent = n;
     b.setAttribute('aria-pressed', selectedBingoCards.has(n) ? 'true' : 'false');
+    b.disabled = !selectionOpen || gameRunning;
 
     b.onclick = () => {
+      if (!selectionOpen || gameRunning) return;
       const msg = document.getElementById('cardMessage');
 
       if (selectedBingoCards.has(n)) {
@@ -46,18 +51,123 @@ function renderBingoCards() {
   document.getElementById('selectedTotal').textContent = (selectedBingoCards.size * 10) + ' ETB';
 }
 
-function confirmCards() {
-  const msg = document.getElementById('cardMessage');
 
-  if (!selectedBingoCards.size) {
-    msg.textContent = 'Please select at least one card.';
+function startSelectionTimer() {
+  if (selectionOpen || gameRunning) return;
+  selectionOpen = true;
+  secondsLeft = 30;
+  renderBingoCards();
+  const label = document.getElementById("selectionTimer");
+  label.textContent = "30 seconds left to choose cards.";
+
+  selectionTimer = setInterval(() => {
+    secondsLeft--;
+    label.textContent = secondsLeft + " seconds left to choose cards.";
+    if (secondsLeft <= 0) {
+      clearInterval(selectionTimer);
+      selectionTimer = null;
+      selectionOpen = false;
+      renderBingoCards();
+      startGame();
+    }
+  }, 1000);
+}
+
+function makeCard(id) {
+  const ranges = [[1,15],[16,30],[31,45],[46,60],[61,75]];
+  const cols = ranges.map(([a,b]) => {
+    const nums = [];
+    for (let n=a; n<=b; n++) nums.push(n);
+    nums.sort(() => Math.random() - 0.5);
+    return nums.slice(0,5);
+  });
+  const cells = [];
+  for (let r=0; r<5; r++)
+    for (let c=0; c<5; c++)
+      cells.push(r===2 && c===2 ? "FREE" : cols[c][r]);
+  return {id, cells};
+}
+
+function isWinner(card) {
+  const marked = card.cells.map(n => n === "FREE" || calledNumbers.includes(n));
+  for (let r=0; r<5; r++)
+    if ([0,1,2,3,4].every(c => marked[r*5+c])) return true;
+  for (let c=0; c<5; c++)
+    if ([0,1,2,3,4].every(r => marked[r*5+c])) return true;
+  if ([0,1,2,3,4].every(i => marked[i*5+i])) return true;
+  if ([0,1,2,3,4].every(i => marked[i*5+4-i])) return true;
+  return false;
+}
+
+function renderGameCards() {
+  const holder = document.getElementById("playerGameCards");
+  holder.innerHTML = gameCards.map(card => {
+    const cells = ["B","I","N","G","O", ...card.cells].map((n,i) => {
+      const marked = i >= 5 && (n === "FREE" || calledNumbers.includes(n));
+      return '<div class="bingo-cell' + (marked ? ' marked' : '') + '">' + n + '</div>';
+    }).join("");
+    return '<div class="game-card"><b>Cartela ' + card.id +
+      '</b><div class="bingo-grid">' + cells + '</div></div>';
+  }).join("");
+}
+
+function callNumber() {
+  if (!gameRunning) return;
+  const remaining = [];
+  for (let n=1; n<=75; n++)
+    if (!calledNumbers.includes(n)) remaining.push(n);
+  if (!remaining.length) {
+    clearInterval(gameTimer);
+    document.getElementById("gameMessage").textContent = "Game finished.";
     return;
   }
 
-  msg.textContent = 'Selected cards: ' +
-    [...selectedBingoCards].sort((a, b) => a - b).join(', ') +
-    '. Total: ' + (selectedBingoCards.size * 10) +
-    ' ETB. Payment is not connected yet; cards are not reserved.';
+  const n = remaining[Math.floor(Math.random()*remaining.length)];
+  calledNumbers.push(n);
+  document.getElementById("lastCalled").textContent = n;
+  document.getElementById("calledHistory").textContent = calledNumbers.join(", ");
+  renderGameCards();
+
+  const winner = gameCards.find(isWinner);
+  if (winner) {
+    gameRunning = false;
+    clearInterval(gameTimer);
+    document.getElementById("gameMessage").textContent =
+      "🎉 BINGO! Cartela " + winner.id;
+  }
+}
+
+function startGame() {
+  if (selectionTimer) clearInterval(selectionTimer);
+  selectionOpen = false;
+
+  if (!selectedBingoCards.size) {
+    document.getElementById("cardMessage").textContent =
+      "No cards selected. Open Play Bingo to try again.";
+    renderBingoCards();
+    return;
+  }
+
+  gameRunning = true;
+  calledNumbers = [];
+  gameCards = [...selectedBingoCards].sort((a,b)=>a-b).map(makeCard);
+  document.getElementById("gameArea").style.display = "block";
+  document.getElementById("selectionTimer").textContent = "Selection closed. Game started!";
+  document.getElementById("gameMessage").textContent = "Numbers are being called...";
+  renderBingoCards();
+  renderGameCards();
+  callNumber();
+  if (gameRunning) gameTimer = setInterval(callNumber, 2500);
+}
+
+function confirmCards() {
+  if (!selectedBingoCards.size) {
+    document.getElementById("cardMessage").textContent =
+      "Please select at least one card.";
+    return;
+  }
+  if (selectionTimer) clearInterval(selectionTimer);
+  startGame();
 }
 </script>
 <style>
@@ -91,6 +201,11 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 .card-pick{background:#173d28;color:#fff;border:1px solid #3b8053;border-radius:9px;padding:12px 2px;font-weight:bold}
 .card-pick.selected{background:#20b85a;color:#07170d;border:2px solid #a8ffc3}
 .card-pick:disabled{opacity:.4}
+
+.game-card{background:#0b1911;border:1px solid #326545;border-radius:12px;padding:12px;margin:12px 0}
+.bingo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.bingo-cell{display:grid;place-items:center;min-height:35px;padding:3px;background:#173d28;border-radius:5px;font-size:12px}
+.bingo-cell.marked{background:#20b85a;color:#07170d;font-weight:bold}
 </style>
 </head>
 <body>
@@ -143,7 +258,15 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
     <p>Selected: <b id="selectedCount">0</b> | Total: <b id="selectedTotal">0 ETB</b></p>
     <div id="cardGrid" class="card-grid"></div>
     <button class="primary" onclick="confirmCards()">Continue</button>
-    <p id="cardMessage" class="info">Choose one or more available cards.</p>
+    <p id="selectionTimer" class="info">30 seconds to choose cards.</p>
+    <p id="cardMessage" class="info">Choose up to 4 cards.</p>
+    <div id="gameArea" style="display:none">
+      <h3>🎱 Bingo Game</h3>
+      <p>Last number: <b id="lastCalled">—</b></p>
+      <p>Called: <span id="calledHistory"></span></p>
+      <div id="playerGameCards"></div>
+      <h2 id="gameMessage"></h2>
+    </div>
   </div>
 </section>
 
@@ -169,7 +292,10 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  if (id === 'cards' && typeof renderBingoCards === 'function') renderBingoCards();
+  if (id === 'cards' && typeof renderBingoCards === 'function') {
+    if (!selectionOpen && !gameRunning) startSelectionTimer();
+    renderBingoCards();
+  }
   document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
   window.scrollTo(0,0);
 }
@@ -201,5 +327,6 @@ if (profileTelegram) {
     document.getElementById("profile-id").textContent = "Unavailable";
   }
 }
-\n</script>\n</body>
+</script>
+</body>
 </html>
