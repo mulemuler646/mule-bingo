@@ -5,41 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#07110d">
 <title>Mule Bingo</title>
-<script src="https://telegram.org/js/telegram-web-app.js">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
 const selectedBingoCards = new Set();
-function renderBingoCards(){
+
+function renderBingoCards() {
   const grid = document.getElementById('cardGrid');
-  if(!grid) return;
+  if (!grid) return;
+
   grid.innerHTML = '';
-  for(let n=1;n<=200;n++){
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='card-pick'+(selectedBingoCards.has(n)?' selected':'');
-    b.textContent=n;
-    b.setAttribute('aria-pressed',selectedBingoCards.has(n)?'true':'false');
-    b.onclick=()=>{
-      if(selectedBingoCards.has(n)) selectedBingoCards.delete(n);
+
+  for (let n = 1; n <= 200; n++) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'card-pick' + (selectedBingoCards.has(n) ? ' selected' : '');
+    b.textContent = n;
+    b.setAttribute('aria-pressed', selectedBingoCards.has(n) ? 'true' : 'false');
+
+    b.onclick = () => {
+      if (selectedBingoCards.has(n)) selectedBingoCards.delete(n);
       else selectedBingoCards.add(n);
       renderBingoCards();
     };
+
     grid.appendChild(b);
   }
-  document.getElementById('selectedCount').textContent=selectedBingoCards.size;
-  document.getElementById('selectedTotal').textContent=(selectedBingoCards.size*10)+' ETB';
+
+  document.getElementById('selectedCount').textContent = selectedBingoCards.size;
+  document.getElementById('selectedTotal').textContent = (selectedBingoCards.size * 10) + ' ETB';
 }
-function confirmCards(){
-  const msg=document.getElementById('cardMessage');
-  if(!selectedBingoCards.size){
-    msg.textContent='Please select at least one card.';
+
+function confirmCards() {
+  const msg = document.getElementById('cardMessage');
+
+  if (!selectedBingoCards.size) {
+    msg.textContent = 'Please select at least one card.';
     return;
   }
-  msg.textContent='Selected cards: '+[...selectedBingoCards].sort((a,b)=>a-b).join(', ')+'. Total: '+(selectedBingoCards.size*10)+' ETB. Payment is not connected yet, so no money has been charged and these cards are not reserved.';
+
+  msg.textContent = 'Selected cards: ' +
+    [...selectedBingoCards].sort((a, b) => a - b).join(', ') +
+    '. Total: ' + (selectedBingoCards.size * 10) +
+    ' ETB. Payment is not connected yet; cards are not reserved.';
 }
-const oldShowPage = window.showPage;
-window.showPage = function(id){
-  if(typeof oldShowPage==='function') oldShowPage(id);
-  if(id==='cards') renderBingoCards();
-};
 </script>
 <style>
 *{box-sizing:border-box}
