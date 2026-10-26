@@ -605,6 +605,70 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
   font-size: 38px !important;
 }
 
+
+/* FINAL COMPACT BALLS AND LARGER CARTELA */
+
+/* Keep called numbers on one line and clip overflow */
+#gamePage #calledHistory {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  margin: 4px 0 8px !important;
+}
+
+#gamePage #calledHistory > .bingo-ball-row {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  padding: 2px 0 !important;
+}
+
+#gamePage #calledHistory .bingo-ball {
+  width: 25px !important;
+  height: 25px !important;
+  min-width: 25px !important;
+  flex: 0 0 25px !important;
+  font-size: 11px !important;
+  margin: 0 !important;
+}
+
+/* Narrow number board, give more room to Cartela */
+#gamePage #gameArea .game-layout {
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr) !important;
+  gap: 5px !important;
+  margin-top: 6px !important;
+}
+
+#gamePage #gameArea .numbers-panel {
+  padding: 3px !important;
+  min-width: 0 !important;
+}
+
+#gamePage #gameArea .player-card-panel {
+  padding: 6px !important;
+  min-width: 0 !important;
+}
+
+#gamePage #gameArea .numbers-panel .called-cell {
+  padding: 5px 0 !important;
+  font-size: 10px !important;
+}
+
+#gamePage #gameArea .player-card-panel .bingo-cell {
+  min-height: 34px !important;
+  font-size: 12px !important;
+  padding: 2px 0 !important;
+}
+
+#gamePage #gameArea .player-card-panel .bingo-grid {
+  gap: 3px !important;
+}
+
 </style>
 </head>
 <body>
