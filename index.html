@@ -121,7 +121,12 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 
 <section id="profile" class="page">
   <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="card"><h2>👤 My Profile</h2><p class="info">Your Telegram profile information will appear here when the app is opened from your Telegram bot.</p></div>
+  <div class="card">
+    <h2>👤 My Profile</h2>
+    <p>Full name: <strong id="profile-name">Loading...</strong></p>
+    <p>Username: <strong id="profile-username">Loading...</strong></p>
+    <p>Telegram ID: <strong id="profile-id">Loading...</strong></p>
+</div>
 </section>
 
 <section id="wallet" class="page">
@@ -177,5 +182,23 @@ function shareApp(){
 }
 if(window.Telegram && Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
 </script>
-</body>
+<script>\n
+const profileTelegram = window.Telegram?.WebApp;
+if (profileTelegram) {
+  profileTelegram.ready();
+  profileTelegram.expand();
+  const u = profileTelegram.initDataUnsafe?.user;
+  if (u) {
+    document.getElementById("profile-name").textContent =
+      [u.first_name, u.last_name].filter(Boolean).join(" ") || "User";
+    document.getElementById("profile-username").textContent =
+      u.username ? "@" + u.username : "No username set";
+    document.getElementById("profile-id").textContent = u.id ?? "—";
+  } else {
+    document.getElementById("profile-name").textContent = "Open from Telegram";
+    document.getElementById("profile-username").textContent = "Unavailable";
+    document.getElementById("profile-id").textContent = "Unavailable";
+  }
+}
+\n</script>\n</body>
 </html>
