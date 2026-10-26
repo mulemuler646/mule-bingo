@@ -5,7 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#07110d">
 <title>Mule Bingo</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js">
+const selectedBingoCards = new Set();
+function renderBingoCards(){
+  const grid = document.getElementById('cardGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  for(let n=1;n<=200;n++){
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='card-pick'+(selectedBingoCards.has(n)?' selected':'');
+    b.textContent=n;
+    b.setAttribute('aria-pressed',selectedBingoCards.has(n)?'true':'false');
+    b.onclick=()=>{
+      if(selectedBingoCards.has(n)) selectedBingoCards.delete(n);
+      else selectedBingoCards.add(n);
+      renderBingoCards();
+    };
+    grid.appendChild(b);
+  }
+  document.getElementById('selectedCount').textContent=selectedBingoCards.size;
+  document.getElementById('selectedTotal').textContent=(selectedBingoCards.size*10)+' ETB';
+}
+function confirmCards(){
+  const msg=document.getElementById('cardMessage');
+  if(!selectedBingoCards.size){
+    msg.textContent='Please select at least one card.';
+    return;
+  }
+  msg.textContent='Selected cards: '+[...selectedBingoCards].sort((a,b)=>a-b).join(', ')+'. Total: '+(selectedBingoCards.size*10)+' ETB. Payment is not connected yet, so no money has been charged and these cards are not reserved.';
+}
+const oldShowPage = window.showPage;
+window.showPage = function(id){
+  if(typeof oldShowPage==='function') oldShowPage(id);
+  if(id==='cards') renderBingoCards();
+};
+</script>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#07110d;color:#fff;font-family:Arial,sans-serif;padding:20px 16px 90px}
@@ -32,6 +67,11 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 .bottom button{background:transparent;color:#9bb4a5;padding:8px 10px;font-size:12px}
 .bottom button.active{color:#35db91}
 .note{text-align:center;color:#789181;font-size:12px;margin-top:24px}
+
+.card-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:16px 0}
+.card-pick{background:#173d28;color:#fff;border:1px solid #3b8053;border-radius:9px;padding:12px 2px;font-weight:bold}
+.card-pick.selected{background:#20b85a;color:#07170d;border:2px solid #a8ffc3}
+.card-pick:disabled{opacity:.4}
 </style>
 </head>
 <body>
@@ -72,7 +112,14 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 
 <section id="cards" class="page">
   <button class="back" onclick="showPage('home')">← Back</button>
-  <div class="card"><h2>🎱 Bingo Cards</h2><p class="info">Open the Bingo game from the Mule Bingo Telegram bot to use its current card-selection system.</p><button class="primary" onclick="openBot()">Open Telegram Bot</button></div>
+  <div class="card">
+    <h2>🎱 Choose Your Bingo Card</h2>
+    <p class="info">Select a card from 1–200. Price: 10 ETB per card.</p>
+    <p>Selected: <b id="selectedCount">0</b> | Total: <b id="selectedTotal">0 ETB</b></p>
+    <div id="cardGrid" class="card-grid"></div>
+    <button class="primary" onclick="confirmCards()">Continue</button>
+    <p id="cardMessage" class="info">Choose one or more available cards.</p>
+  </div>
 </section>
 
 <section id="invite" class="page">
