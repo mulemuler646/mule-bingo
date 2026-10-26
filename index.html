@@ -3,30 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mule Bingo Profile</title>
+<meta name="theme-color" content="#07110d">
+<title>Mule Bingo</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-body{margin:0;background:#071b16;color:#fff;font-family:Arial,sans-serif;padding:22px}
-.card{max-width:420px;margin:20px auto;background:#102c23;padding:24px;border-radius:20px;border:1px solid #28634c}
-h1{color:#55e09a;text-align:center;font-size:25px}
-p{padding:12px;background:#193b30;border-radius:10px}
-span{color:#55e09a}
-.note{text-align:center;color:#b8d2c6;font-size:13px}
+*{box-sizing:border-box}
+body{margin:0;background:#07110d;color:#fff;font-family:Arial,sans-serif;padding:20px 16px 90px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.logo{width:52px;height:52px;background:#16a765;border-radius:16px;display:grid;place-items:center;font-size:28px}
+h1{font-size:23px;margin:0}
+.sub,.label,.muted{color:#9bb4a5;font-size:13px}
+.card{background:#12241b;border:1px solid #244634;border-radius:18px;padding:20px;margin-bottom:16px}
+.label{letter-spacing:1px}
+.balance{font-size:32px;font-weight:bold;margin:12px 0 20px}
+.buttons{display:flex;gap:10px}
+button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;font-weight:bold;color:white}
+.primary{background:#16a765;flex:1}
+.secondary{background:#233c2e;flex:1}
+.section-title{font-size:18px;margin:22px 0 12px}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.menu button{background:#12241b;border:1px solid #244634;min-height:100px;text-align:left;font-size:15px}
+.menu span{display:block;font-size:25px;margin-bottom:12px}
+.page{display:none}
+.page.active{display:block}
+.back{background:#233c2e;margin-bottom:16px}
+.info{line-height:1.7;color:#c8d8ce}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#0d1b13;border-top:1px solid #244634;display:flex;justify-content:space-around;padding:10px 4px calc(10px + env(safe-area-inset-bottom))}
+.bottom button{background:transparent;color:#9bb4a5;padding:8px 10px;font-size:12px}
+.bottom button.active{color:#35db91}
+.note{text-align:center;color:#789181;font-size:12px;margin-top:24px}
 </style>
 </head>
 <body>
-<div class="card">
-<h1>🎱 MULE BINGO</h1>
-<p>👤 Player: <span>Open in Telegram</span></p>
-<p>🆔 Player ID: <span>—</span></p>
-<p>💰 Balance: <span>0.00 ETB</span></p>
-<p>🎮 Games Played: <span>0</span></p>
-<p>🏆 Wins: <span>0</span></p>
-<p>🔗 Referral Link: <span>Available in bot</span></p>
-<p>💳 Deposit</p>
-<p>💸 Withdraw</p>
-<p>🎮 Play Bingo</p>
-<div class="note">Mule Bingo Player Profile</div>
-</div>
+<header>
+  <div class="logo">🎱</div>
+  <div><h1>Mule Bingo</h1><div class="sub">Play • Enjoy • Win</div></div>
+</header>
+
+<main>
+<section id="home" class="page active">
+  <div class="card">
+    <div class="label">MY WALLET</div>
+    <div class="balance">0.00 ETB</div>
+    <div class="buttons">
+      <button class="primary" onclick="showPage('wallet')">＋ Deposit</button>
+      <button class="secondary" onclick="showPage('wallet')">↗ Withdraw</button>
+    </div>
+  </div>
+  <div class="section-title">🎮 Game Menu</div>
+  <div class="menu">
+    <button onclick="showPage('cards')"><span>🎱</span>Play Bingo</button>
+    <button onclick="showPage('profile')"><span>👤</span>My Profile</button>
+    <button onclick="showPage('invite')"><span>🎁</span>Invite Friends</button>
+    <button onclick="showPage('rules')"><span>📜</span>Game Rules</button>
+  </div>
+  <div class="note">Mule Bingo • Play responsibly</div>
+</section>
+
+<section id="profile" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="card"><h2>👤 My Profile</h2><p class="info">Your Telegram profile information will appear here when the app is opened from your Telegram bot.</p></div>
+</section>
+
+<section id="wallet" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="card"><h2>💰 My Wallet</h2><div class="label">CURRENT BALANCE</div><div class="balance">0.00 ETB</div><p class="info">Deposit and withdrawal services are not connected yet. Your real balance will be shown after secure backend integration.</p></div>
+</section>
+
+<section id="cards" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="card"><h2>🎱 Bingo Cards</h2><p class="info">Open the Bingo game from the Mule Bingo Telegram bot to use its current card-selection system.</p><button class="primary" onclick="openBot()">Open Telegram Bot</button></div>
+</section>
+
+<section id="invite" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="card"><h2>🎁 Invite Friends</h2><p class="info">Invite friends to discover Mule Bingo. Your personal referral link will be added when connected to the bot.</p><button class="primary" onclick="shareApp()">Share</button></div>
+</section>
+
+<section id="rules" class="page">
+  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="card"><h2>📜 Bingo Rules</h2><p class="info">1. Open the game through the Telegram bot.<br><br>2. Select an available Bingo card.<br><br>3. Follow the game instructions from the bot.<br><br>4. Never share your account credentials or bot token.</p></div>
+</section>
+</main>
+
+<nav class="bottom">
+  <button class="active" data-page="home" onclick="showPage('home')">🏠<br>Home</button>
+  <button data-page="cards" onclick="showPage('cards')">🎱<br>Play</button>
+  <button data-page="wallet" onclick="showPage('wallet')">💰<br>Wallet</button>
+  <button data-page="profile" onclick="showPage('profile')">👤<br>Profile</button>
+</nav>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  window.scrollTo(0,0);
+}
+function openBot(){
+  if(window.Telegram && Telegram.WebApp){Telegram.WebApp.close();}
+  else{alert('Open this Mini App from your Telegram bot.');}
+}
+function shareApp(){
+  if(navigator.share){navigator.share({title:'Mule Bingo',text:'Come and check out Mule Bingo!'}).catch(()=>{});}
+  else{alert('Open the app on your phone to share it.');}
+}
+if(window.Telegram && Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+</script>
 </body>
 </html>
-
