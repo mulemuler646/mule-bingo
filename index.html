@@ -152,6 +152,7 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (id === 'cards' && typeof renderBingoCards === 'function') renderBingoCards();
   document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
   window.scrollTo(0,0);
 }
