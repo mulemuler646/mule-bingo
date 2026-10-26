@@ -23,8 +23,19 @@ function renderBingoCards() {
     b.setAttribute('aria-pressed', selectedBingoCards.has(n) ? 'true' : 'false');
 
     b.onclick = () => {
-      if (selectedBingoCards.has(n)) selectedBingoCards.delete(n);
-      else selectedBingoCards.add(n);
+      const msg = document.getElementById('cardMessage');
+
+      if (selectedBingoCards.has(n)) {
+        selectedBingoCards.delete(n);
+        msg.textContent = 'Choose up to 4 cards.';
+      } else if (selectedBingoCards.size >= 4) {
+        msg.textContent = 'Maximum 4 cards per player!';
+        return;
+      } else {
+        selectedBingoCards.add(n);
+        msg.textContent = 'Choose up to 4 cards.';
+      }
+
       renderBingoCards();
     };
 
