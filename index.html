@@ -58,11 +58,11 @@ function startSelectionTimer() {
   secondsLeft = 30;
   renderBingoCards();
   const label = document.getElementById("selectionTimer");
-  label.textContent = "30 seconds left to choose cards.";
+  label.textContent = "⏳ 30 SEC LEFT";
 
   selectionTimer = setInterval(() => {
     secondsLeft--;
-    label.textContent = secondsLeft + " seconds left to choose cards.";
+    label.textContent = "⏳ " + secondsLeft + " SEC LEFT";
     if (secondsLeft <= 0) {
       clearInterval(selectionTimer);
       selectionTimer = null;
@@ -124,8 +124,21 @@ function callNumber() {
 
   const n = remaining[Math.floor(Math.random()*remaining.length)];
   calledNumbers.push(n);
-  document.getElementById("lastCalled").textContent = n;
-  document.getElementById("calledHistory").textContent = calledNumbers.join(", ");
+  document.getElementById("lastCalled").innerHTML =
+    '<span class="bingo-ball" style="background:' +
+    ['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa'][n % 5] +
+    '">' + n + '</span>';
+  document.getElementById("calledHistory").innerHTML =
+    '<div class="bingo-ball-row">' + calledNumbers.map((num, i) =>
+      '<span class="bingo-ball" style="background:' +
+      ['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa'][num % 5] +
+      '">' + num + '</span>'
+    ).join("") + '</div>';
+    const board = document.getElementById("calledBoard");
+    if (board) board.innerHTML = Array.from({length:75}, (_,i) => i+1).map(num =>
+      '<div class="called-cell ' + (calledNumbers.includes(num) ? 'called' : '') +
+      '">' + num + '</div>'
+    ).join("");
   renderGameCards();
 
   const winner = gameCards.find(isWinner);
@@ -150,8 +163,12 @@ function startGame() {
 
   gameRunning = true;
   calledNumbers = [];
-  gameCards = [...selectedBingoCards].sort((a,b)=>a-b).map(makeCard);
+  gameCards = [...selectedBingoCards].sort((a,b)=>a-b).slice(0, 1).map(makeCard);
   document.getElementById("gameArea").style.display = "block";
+  document.getElementById("cardGrid").style.display = "none";
+  document.querySelector("#cards .card > .primary").style.display = "none";
+  document.getElementById("selectedCount").parentElement.style.display = "none";
+  document.getElementById("cards").querySelector("h2").textContent = "🎱 Bingo Game";
   document.getElementById("selectionTimer").textContent = "Selection closed. Game started!";
   document.getElementById("gameMessage").textContent = "Numbers are being called...";
   renderBingoCards();
@@ -206,6 +223,122 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
 .bingo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .bingo-cell{display:grid;place-items:center;min-height:35px;padding:3px;background:#173d28;border-radius:5px;font-size:12px}
 .bingo-cell.marked{background:#20b85a;color:#07170d;font-weight:bold}
+
+/* Bingo timer and colorful balls */
+.selection-timer {
+  display: block;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 900;
+  color: #ffe45c;
+  background: #08140f;
+  border: 2px solid #16a765;
+  border-radius: 16px;
+  padding: 14px;
+  margin: 14px 0;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 18px #16a76555;
+}
+.bingo-ball {
+  width: 76px;
+  height: 76px;
+  flex: 0 0 76px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+  font-size: 30px;
+  font-weight: 900;
+  margin: 6px;
+  border: 3px solid #ffffffaa;
+  box-shadow: inset -5px -7px 10px #0005, 0 4px 12px #0007;
+}
+.bingo-ball-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 0;
+}
+.called-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 12px;
+}
+.called-cell {
+  text-align: center;
+  padding: 9px 2px;
+  border-radius: 8px;
+  background: #20352a;
+  color: #d9e8df;
+  font-size: 13px;
+  font-weight: bold;
+}
+.called-cell.called {
+  background: #ffcf33;
+  color: #172015;
+  box-shadow: 0 0 8px #ffcf3380;
+}
+
+
+.game-area {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 18px;
+  background: #09170f;
+  border: 1px solid #16a765;
+}
+.last-number-box {
+  text-align: center;
+  margin: 12px 0 20px;
+  padding: 12px;
+  background: #12241b;
+  border-radius: 14px;
+}
+.last-number-box > span {
+  display: block;
+  color: #9bb4a5;
+  font-size: 12px;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.last-number-box #lastCalled .bingo-ball {
+  width: 92px;
+  height: 92px;
+  font-size: 38px;
+}
+#gameArea .game-card {
+  margin: 14px 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #12241b;
+}
+#gameArea .bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 10px;
+}
+#gameArea .bingo-cell {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border-radius: 8px;
+  background: #20352a;
+  font-weight: bold;
+  font-size: 14px;
+}
+#gameArea .bingo-cell.marked {
+  background: #ffcf33;
+  color: #172015;
+}
+#cardGrid.selection-hidden {
+  display: none;
+}
+
 </style>
 </head>
 <body>
@@ -258,12 +391,12 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
     <p>Selected: <b id="selectedCount">0</b> | Total: <b id="selectedTotal">0 ETB</b></p>
     <div id="cardGrid" class="card-grid"></div>
     <button class="primary" onclick="confirmCards()">Continue</button>
-    <p id="selectionTimer" class="info">30 seconds to choose cards.</p>
+    <div id="selectionTimer" class="selection-timer">⏳ 30 SEC</div>
     <p id="cardMessage" class="info">Choose up to 4 cards.</p>
-    <div id="gameArea" style="display:none">
+    <div id="gameArea" class="game-area" style="display:none">
       <h3>🎱 Bingo Game</h3>
-      <p>Last number: <b id="lastCalled">—</b></p>
-      <p>Called: <span id="calledHistory"></span></p>
+      <div class="last-number-box"><span>LAST CALLED</span><div id="lastCalled">—</div></div>
+      <h3>Called Bingo Balls</h3><div id="calledHistory"></div><h3>All Numbers (1–75)</h3><div id="calledBoard" class="called-board"></div>
       <div id="playerGameCards"></div>
       <h2 id="gameMessage"></h2>
     </div>
