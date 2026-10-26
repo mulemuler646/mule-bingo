@@ -163,12 +163,13 @@ function startGame() {
 
   gameRunning = true;
   calledNumbers = [];
-  gameCards = [...selectedBingoCards].sort((a,b)=>a-b).slice(0, 1).map(makeCard);
+  gameCards = [...selectedBingoCards].sort((a,b)=>a-b).map(makeCard);
   document.getElementById("gameArea").style.display = "block";
-  document.getElementById("cardGrid").style.display = "none";
-  document.querySelector("#cards .card > .primary").style.display = "none";
-  document.getElementById("selectedCount").parentElement.style.display = "none";
-  document.getElementById("cards").querySelector("h2").textContent = "🎱 Bingo Game";
+  const gamePage = document.getElementById("gamePage");
+  gamePage.querySelector(".game-shell").appendChild(
+    document.getElementById("gameArea")
+  );
+  showPage("gamePage");
   document.getElementById("selectionTimer").textContent = "Selection closed. Game started!";
   document.getElementById("gameMessage").textContent = "Numbers are being called...";
   renderBingoCards();
@@ -339,6 +340,74 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
   display: none;
 }
 
+
+.game-shell {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 14px;
+}
+.player-card-panel, .numbers-panel {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #12241b;
+  border: 1px solid #315b43;
+}
+.numbers-panel .called-board {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.player-card-panel .game-card {
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 12px;
+  background: #09170f;
+}
+.player-card-panel .bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+.player-card-panel .bingo-cell {
+  min-width: 0;
+  min-height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #20352a;
+  font-size: 13px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+.player-card-panel .bingo-cell.marked {
+  background: #ffcf33;
+  color: #172015;
+  box-shadow: 0 0 8px #ffcf3380;
+}
+.numbers-panel .called-cell {
+  padding: 9px 1px;
+  font-size: 13px;
+}
+.numbers-panel .called-cell.called {
+  background: #ffcf33;
+  color: #172015;
+  box-shadow: 0 0 8px #ffcf3380;
+}
+@media (max-width: 650px) {
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -396,8 +465,18 @@ button{cursor:pointer;border:0;border-radius:12px;padding:14px;font-size:14px;fo
     <div id="gameArea" class="game-area" style="display:none">
       <h3>🎱 Bingo Game</h3>
       <div class="last-number-box"><span>LAST CALLED</span><div id="lastCalled">—</div></div>
-      <h3>Called Bingo Balls</h3><div id="calledHistory"></div><h3>All Numbers (1–75)</h3><div id="calledBoard" class="called-board"></div>
-      <div id="playerGameCards"></div>
+      <h3>🎱 Called Bingo Balls</h3>
+      <div id="calledHistory" class="bingo-ball-row"></div>
+      <div class="game-layout">
+        <div class="player-card-panel">
+          <h3>🎴 Your Cartela</h3>
+          <div id="playerGameCards"></div>
+        </div>
+        <div class="numbers-panel">
+          <h3>🔢 Numbers 1–75</h3>
+          <div id="calledBoard" class="called-board"></div>
+        </div>
+      </div>
       <h2 id="gameMessage"></h2>
     </div>
   </div>
@@ -461,5 +540,9 @@ if (profileTelegram) {
   }
 }
 </script>
+<section id="gamePage" class="page">
+  <div class="game-shell"></div>
+</section>
+
 </body>
 </html>
