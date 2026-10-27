@@ -76,6 +76,8 @@ function renderBingoCards() {
   const stake = 10;
   const total = selectedBingoCards.size * stake;
   document.getElementById('selectedTotal').textContent = total + ' ETB';
+  const stakeBox = document.getElementById('bingoStake');
+  if (stakeBox) stakeBox.textContent = total + ' ETB';
 
 
   const prizeBox = document.getElementById('bingoPrize');
