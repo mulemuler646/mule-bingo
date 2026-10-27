@@ -842,13 +842,12 @@ header .brand-name {
 
 <section id="cards" class="page">
   <button class="back" onclick="showPage('home')">← Back</button>
+  <div id="selectionTimer" class="selection-timer">⏳ 30 SEC LEFT</div>
   <div class="card">
     <h2>🎱 Choose Your Bingo Card</h2>
     <p class="info">Select a card from 1–200. Price: 10 ETB per card.</p>
     <p>Selected: <b id="selectedCount">0</b> | Total: <b id="selectedTotal">0 ETB</b></p>
     <div id="cardGrid" class="card-grid"></div>
-    <button class="primary" onclick="confirmCards()">Continue</button>
-    <div id="selectionTimer" class="selection-timer">⏳ 30 SEC</div>
     <p id="cardMessage" class="info">Choose up to 4 cards.</p>
     <div id="gameArea" class="game-area" style="display:none">
       <h3>🎱 Bingo Game</h3>
