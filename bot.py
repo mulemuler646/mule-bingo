@@ -1,6 +1,11 @@
 import os
 import sqlite3
 import logging
+import asyncio
+import base64
+import json
+import urllib.request
+import urllib.error
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler,
@@ -9,6 +14,51 @@ from telegram.ext import (
 
 TOKEN = os.environ.get("BOT_TOKEN")
 DB = "mule_bingo.db"
+
+def publish_card_stats():
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        raise RuntimeError("GITHUB_TOKEN is missing")
+
+    with sqlite3.connect(DB) as con:
+        total = con.execute("SELECT COUNT(*) FROM cards").fetchone()[0]
+
+    url = "https://api.github.com/repos/mulemuler646/mule-bingo/contents/stats.json"
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28"
+    }
+
+    sha = None
+    try:
+        req = urllib.request.Request(url + "?ref=main", headers=headers)
+        with urllib.request.urlopen(req, timeout=20) as response:
+            sha = json.loads(response.read()).get("sha")
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+
+    stats = {"players": total, "stake": total * 10}
+    payload = {
+        "message": "Update Mule Bingo stats",
+        "content": base64.b64encode(
+            json.dumps(stats).encode("utf-8")
+        ).decode("ascii"),
+        "branch": "main"
+    }
+    if sha:
+        payload["sha"] = sha
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="PUT"
+    )
+    with urllib.request.urlopen(req, timeout=20) as response:
+        logging.info("Published Bingo stats: %s cards", total)
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -50,7 +100,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton(
                 "🎮 Open Mule Bingo App",
-                web_app=WebAppInfo(url="https://mulemuler646.github.io/mule-bingo/")
+                web_app=WebAppInfo(url="https://mulemuler646.github.io/mule-bingo/?v=2")
             )
         ],
         [
@@ -154,6 +204,12 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if number in selected:
             selected.remove(number)
         else:
+            if len(selected) >= 4:
+                await query.answer(
+                    "ከፍተኛው 4 ካርቴላ ብቻ ነው።",
+                    show_alert=True
+                )
+                return
             selected.add(number)
 
         await query.answer(
@@ -201,7 +257,7 @@ async def buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def close_selection(context: ContextTypes.DEFAULT_TYPE):
     user_id = context.job.data
-    selected = context.application.user_data.get(user_id, {})
+    selected = context.application.user_data[user_id]
     cards = selected.get("selected_cards", set())
 
     with sqlite3.connect(DB) as con:
@@ -210,6 +266,11 @@ async def close_selection(context: ContextTypes.DEFAULT_TYPE):
                 "INSERT OR IGNORE INTO cards (user_id, card_number) VALUES (?, ?)",
                 (user_id, number)
             )
+
+    try:
+        await asyncio.to_thread(publish_card_stats)
+    except Exception:
+        logging.exception("Could not publish card stats to GitHub")
 
     selected["selection_open"] = False
 

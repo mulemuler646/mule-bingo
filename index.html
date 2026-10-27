@@ -12,6 +12,31 @@ let selectionOpen = false, secondsLeft = 30;
 let selectionTimer = null, gameTimer = null;
 let calledNumbers = [], gameCards = [], gameRunning = false;
 
+async function refreshGlobalStats() {
+  try {
+    const response = await fetch('./stats.json?ts=' + Date.now(), {
+      cache: 'no-store'
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+
+    const playersBox = document.getElementById('playersCount');
+    const stakeBox = document.getElementById('bingoStake');
+
+    if (playersBox && Number.isFinite(Number(data.players))) {
+      playersBox.textContent = data.players;
+    }
+    if (stakeBox && Number.isFinite(Number(data.stake))) {
+      stakeBox.textContent = data.stake + ' ETB';
+    }
+  } catch (error) {
+    console.warn('Could not load Bingo stats', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', refreshGlobalStats);
+setInterval(refreshGlobalStats, 10000);
+
 function renderBingoCards() {
   const grid = document.getElementById('cardGrid');
   if (!grid) return;
@@ -48,13 +73,10 @@ function renderBingoCards() {
   }
 
   document.getElementById('selectedCount').textContent = selectedBingoCards.size;
-  document.getElementById('playersCount').textContent = selectedBingoCards.size;
   const stake = 10;
   const total = selectedBingoCards.size * stake;
   document.getElementById('selectedTotal').textContent = total + ' ETB';
 
-  const stakeBox = document.getElementById('bingoStake');
-  if (stakeBox) stakeBox.textContent = '10 ETB / card';
 
   const prizeBox = document.getElementById('bingoPrize');
   if (prizeBox) prizeBox.textContent = Math.floor(total * 0.80) + ' ETB';
