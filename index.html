@@ -48,7 +48,14 @@ function renderBingoCards() {
   }
 
   document.getElementById('selectedCount').textContent = selectedBingoCards.size;
-  document.getElementById('selectedTotal').textContent = (selectedBingoCards.size * 10) + ' ETB';
+  const stake = selectedBingoCards.size * 10;
+  document.getElementById('selectedTotal').textContent = stake + ' ETB';
+
+  const stakeBox = document.getElementById('bingoStake');
+  if (stakeBox) stakeBox.textContent = stake + ' ETB';
+
+  const prizeBox = document.getElementById('bingoPrize');
+  if (prizeBox) prizeBox.textContent = Math.floor(stake * 0.70) + ' ETB';
 }
 
 
