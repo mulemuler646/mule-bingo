@@ -796,6 +796,47 @@ header .brand-name {
   padding: 4px !important;
 }
 
+
+/* Small bingo information boxes above the countdown */
+.bingo-top-row {
+  display: grid;
+  grid-template-columns: 34px repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  align-items: stretch;
+  margin: 8px 0;
+  width: 100%;
+}
+.bingo-back-small,
+.bingo-stat {
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #16a765;
+  border-radius: 8px;
+  background: #08140f;
+  color: #ffffff;
+  text-align: center;
+  padding: 7px 2px;
+}
+.bingo-back-small {
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.bingo-stat span {
+  display: block;
+  font-size: 9px;
+  line-height: 1.2;
+  color: #a8eac7;
+  overflow-wrap: anywhere;
+}
+.bingo-stat b {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
 </style>
 </head>
 <body>
@@ -841,7 +882,13 @@ header .brand-name {
 </section>
 
 <section id="cards" class="page">
-  <button class="back" onclick="showPage('home')">← Back</button>
+  <div class="bingo-top-row">
+    <button class="bingo-back-small" onclick="showPage('home')">←</button>
+    <div class="bingo-stat"><span>Players</span><b id="playersCount">..</b></div>
+    <div class="bingo-stat"><span>Stake</span><b id="bingoStake">0 ETB</b></div>
+    <div class="bingo-stat"><span>Called Number</span><b id="topCalledNumber">1/75</b></div>
+    <div class="bingo-stat"><span>Prize</span><b id="bingoPrize">2000 ETB</b></div>
+  </div>
   <div id="selectionTimer" class="selection-timer">⏳ 30 SEC LEFT</div>
   <div class="card">
     <h2>🎱 Choose Your Bingo Card</h2>
