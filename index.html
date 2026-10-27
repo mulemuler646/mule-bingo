@@ -48,6 +48,7 @@ function renderBingoCards() {
   }
 
   document.getElementById('selectedCount').textContent = selectedBingoCards.size;
+  document.getElementById('playersCount').textContent = selectedBingoCards.size;
   const stake = 10;
   const total = selectedBingoCards.size * stake;
   document.getElementById('selectedTotal').textContent = total + ' ETB';
